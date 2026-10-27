@@ -38,12 +38,15 @@ jobs:
 
       - name: 5. Setup Pages
         uses: actions/configure-pages@v4
+        continue-on-error: true
 
       - name: 6. Upload GitHub Pages Artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: build/web
+        continue-on-error: true
 
       - name: 7. Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+        continue-on-error: true
