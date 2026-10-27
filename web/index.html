@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <base href="$FLUTTER_BASE_HREF">
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Primary Meta Tags -->
+  <title>Yusuf Sanjaya | Retro Arcade Portfolio & Space Shooter</title>
+  <meta name="title" content="Yusuf Sanjaya | Retro Arcade Portfolio">
+  <meta name="description" content="Portofolio Yusuf Sanjaya - Full Stack Developer Intern di PT Kayaba Indonesia, CCNA Certified, dan Mahasiswa Informatika dengan mini-game Space Shooter retro interaktif.">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://yusufsanjaya.dev/">
+  <meta property="og:title" content="Yusuf Sanjaya | Retro Arcade Portfolio & Space Shooter">
+  <meta property="og:description" content="Jelajahi pengalaman, skill, dan sertifikasi Yusuf Sanjaya dalam balutan arcade game retro luar angkasa.">
+  <meta property="og:image" content="icons/Icon-192.png">
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:title" content="Yusuf Sanjaya | Retro Arcade Portfolio">
+  <meta property="twitter:description" content="Full Stack Developer & Network Engineer Portfolio with 2D Space Shooter Game.">
+
+  <link rel="icon" type="image/png" href="favicon.png"/>
+
+  <!-- Google Fonts Preload -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      background-color: #090D16;
+      color: #F1F5F9;
+      font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+    }
+    #loading-container {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at center, #0F172A 0%, #090D16 85%);
+      z-index: 9999;
+      transition: opacity 0.5s ease;
+    }
+    .arcade-title {
+      font-family: 'Press Start 2P', monospace;
+      color: #00E5FF;
+      font-size: 1.25rem;
+      letter-spacing: 2px;
+      margin-bottom: 2rem;
+      text-shadow: 0 0 10px rgba(0, 229, 255, 0.6), 0 0 20px rgba(16, 185, 129, 0.4);
+      text-align: center;
+      padding: 0 1rem;
+    }
+    .arcade-bar {
+      width: 260px;
+      height: 20px;
+      border: 3px solid #10B981;
+      border-radius: 4px;
+      background: rgba(15, 23, 42, 0.9);
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+    }
+    .arcade-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #10B981, #00E5FF);
+      animation: fillBar 1.8s ease-in-out infinite alternate;
+    }
+    .loading-subtext {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.65rem;
+      color: #FACC15;
+      margin-top: 1.2rem;
+      letter-spacing: 1px;
+      animation: blink 1s step-start infinite;
+    }
+    @keyframes fillBar {
+      0% { width: 15%; }
+      50% { width: 65%; }
+      100% { width: 95%; }
+    }
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+  </style>
+
+  <!-- Web Audio Synthesizer for Authentic 8-bit Retro Sound FX (Zero external asset download) -->
+  <script>
+    let audioCtx = null;
+    let soundEnabled = true;
+
+    function getAudioContext() {
+      if (!audioCtx) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) audioCtx = new AudioContext();
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    window.toggleRetroAudio = function(enabled) {
+      soundEnabled = enabled;
+      return soundEnabled;
+    };
+
+    window.playRetroSound = function(type) {
+      if (!soundEnabled) return;
+      try {
+        const ctx = getAudioContext();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+
+        if (type === 'laser') {
+          // Pew-pew laser sweep
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(880, now);
+          osc.frequency.exponentialRampToValueAtTime(110, now + 0.12);
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.12);
+        } else if (type === 'explosion') {
+          // Retro low-frequency noise rumble
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(180, now);
+          osc.frequency.linearRampToValueAtTime(30, now + 0.25);
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.25);
+        } else if (type === 'powerup') {
+          // Upward arcade chime
+          const freqs = [330, 440, 554, 659];
+          freqs.forEach((freq, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.05);
+            gain.gain.setValueAtTime(0.07, now + idx * 0.05);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + (idx + 1) * 0.05 + 0.03);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + idx * 0.05);
+            osc.stop(now + (idx + 1) * 0.05 + 0.04);
+          });
+        } else if (type === 'click') {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(600, now);
+          gain.gain.setValueAtTime(0.08, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.04);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.04);
+        } else if (type === 'gameover') {
+          const freqs = [440, 415, 392, 370, 349];
+          freqs.forEach((freq, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+            gain.gain.setValueAtTime(0.1, now + idx * 0.08);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + (idx + 1) * 0.08 + 0.04);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + idx * 0.08);
+            osc.stop(now + (idx + 1) * 0.08 + 0.05);
+          });
+        }
+      } catch (e) {
+        console.warn('Audio synth error:', e);
+      }
+    };
+  </script>
+</head>
+<body>
+  <div id="loading-container">
+    <div class="arcade-title">YUSUF SANJAYA // MISSION READY</div>
+    <div class="arcade-bar">
+      <div class="arcade-fill"></div>
+    </div>
+    <div class="loading-subtext">INITIALIZING FLUTTER WEB ENGINE...</div>
+  </div>
+
+  <script>
+    window.addEventListener('load', function() {
+      // Dismiss loader once Flutter takes over
+      const observer = new MutationObserver(function() {
+        if (document.querySelector('flt-glass-pane') || document.querySelector('flutter-view')) {
+          const loader = document.getElementById('loading-container');
+          if (loader) {
+            loader.style.opacity = '0';
+            setTimeout(() => loader.remove(), 500);
+          }
+          observer.disconnect();
+        }
+      });
+      observer.observe(document.body, { childList: true, subtree: true });
+    });
+  </script>
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+</html>
